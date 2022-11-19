@@ -1,0 +1,10 @@
+{
+    "tiles": [
+        {
+            "text": "ProcessInvoices",
+            "subtitle": "Invoice posting App",
+            "icon": "sap-icon://receipt",
+            "size": "1x1"
+        }
+    ]
+}

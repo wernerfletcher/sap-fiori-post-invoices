@@ -1,0 +1,6 @@
+_schema-version: "3.2"
+ID: ProcessInvoices
+version: 0.0.1
+provider: WernerFletcher
+parameters:
+  deploy_mode: b1-webclient
