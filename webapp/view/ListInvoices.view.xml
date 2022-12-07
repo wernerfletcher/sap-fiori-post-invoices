@@ -5,7 +5,8 @@
     xmlns:mvc="sap.ui.core.mvc"
     xmlns:u="sap.ui.unified"
 	xmlns:c="sap.ui.core"
-	xmlns:m="sap.m">
+	xmlns:m="sap.m"
+    xmlns:l="sap.ui.layout">
     <m:Shell id="shell1">
         <m:App id="app1">
             <m:Page id="page1" title="Process Invoices">
@@ -21,13 +22,35 @@
                         fileType="json"/>
                 </m:FlexBox>
 
+                <l:VerticalLayout id="connectionInfoLayout" class="sapUiSmallMargin">
+                    <m:Label 
+                        text="Database Connection Details"
+                        labelFor="dbNameInput"
+                        design="Bold"/>
+                    <m:Input
+                        id="dbNameInput"
+                        type="Text"
+                        placeholder="DB Name"
+                        width="200px"/>
+                    <m:Input
+                        id="uNameInput"
+                        type="Text"
+                        placeholder="Username"
+                        width="200px"/>
+                    <m:Input
+                        id="pWordInput"
+                        type="Password"
+                        placeholder="Password"
+                        width="200px"/>
+                </l:VerticalLayout>
+
                 <m:Panel id="tablePanel">
                     <Table id="table1"
                         class="sapUiResponsiveMargin"
                         rows="{/Invoices}"
                         alternateRowColors="true"
                         selectionMode="MultiToggle"
-                        visibleRowCount="15"
+                        visibleRowCount="10"
                         ariaLabelledBy="title">
                         <columns>
                             <Column id="column1" width="auto">

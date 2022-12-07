@@ -13,8 +13,7 @@ sap.ui.define([
                 const reader = new FileReader();
                 reader.readAsText(file, 'UTF-8');
                 reader.onload = (readerEvent) => {
-                    const payload = readerEvent.target.result;
-                    this.getView().setModel(new JSONModel(JSON.parse(payload)));
+                    this.getView().setModel(new JSONModel(JSON.parse(readerEvent.target.result)));
                 };
             },
 
@@ -53,23 +52,23 @@ sap.ui.define([
                 return finalPayload;
             },
 
-            login: function () {
+            login: function (dbName, uName, pWord) {
                 return fetch((Constants.API_BASE_URL + Constants.API_LOGIN), {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: Constants.REQ_HEADERS,
                     credentials: 'include',
-                    body: JSON.stringify(Constants.LOGIN_REQ_BODY)
+                    body: JSON.stringify({
+                        CompanyDB: dbName,
+                        UserName: uName,
+                        Password: pWord
+                    })
                 });
             },
 
             logout: function () {
                 fetch((Constants.API_BASE_URL + Constants.API_LOGOUT), {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: Constants.REQ_HEADERS,
                     credentials: 'include'
                 })
                 .catch(err => {
@@ -82,15 +81,13 @@ sap.ui.define([
 
                 fetch((Constants.API_BASE_URL + Constants.API_INVOICES), {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: Constants.REQ_HEADERS,
                     credentials: 'include',
                     body: JSON.stringify(invoice)
                 })
                 .then(res => {
                     if (res.ok) {
-                        console.log(`Invoice for ${invoice.CardCode} posted successfully`);
+                        console.log(`Invoice for '${invoice.CardCode}' posted successfully`);
                     }
                     return res.json();
                 })
@@ -105,40 +102,59 @@ sap.ui.define([
             },
 
             processInvoices: function () {
-                const oModel = this.getView().getModel().getData();
-                const oTable = this.byId('table1');
-                const oProcessButton = this.byId('processButton');
-                
-                oTable.setShowOverlay(true);
-                oProcessButton.setEnabled(false);
+                const dbName = this.byId('dbNameInput').getValue();
+                const uName = this.byId('uNameInput').getValue();
+                const pWord = this.byId('pWordInput').getValue();
 
-                let aIndices = oTable.getSelectedIndices();
-                let invoicesToProcess = [];
-                aIndices.forEach((element) => {
-                    invoicesToProcess.push(oModel.Invoices[element]);
-                });
+                if (!dbName || !uName || !pWord) {
+                    alert('Please enter connection details');
+                } else {
+                    const oModelData = this.getView().getModel().getData();
+                    const oTable = this.byId('table1');
+                    
+                    this.disableControls();
 
-                const invoicePayload = this.generateInvoicePayload(invoicesToProcess);
+                    let aIndices = oTable.getSelectedIndices();
+                    let invoicesToProcess = [];
+                    aIndices.forEach((element) => {
+                        invoicesToProcess.push(oModelData.Invoices[element]);
+                    });
+                    const invoicePayload = this.generateInvoicePayload(invoicesToProcess);
 
-                this.login()
+                    this.login(dbName, uName, pWord)
                     .then(res => {
-                        invoicePayload.forEach(inv => {
-                            this.postInvoice(inv);
-                        });
-
-                        this.logout();
-
-                        oTable.clearSelection();
-                        oTable.setShowOverlay(false);
-                        oProcessButton.setEnabled(true);
+                        if (res.ok) {
+                            invoicePayload.forEach(inv => {
+                                this.postInvoice(inv);
+                            });
+    
+                            this.logout();
+                            this.enableControls(true);
+                        } else {
+                            console.error('Could not log in, check connection details');
+                            this.enableControls(false);
+                        }
                     })
                     .catch(err => {
                         console.error('Login failure', err);
-                        oTable.setShowOverlay(false);
-                        oProcessButton.setEnabled(true);
+                        this.enableControls(false);
                     });
 
-                MessageToast.show(`Processing ${invoicePayload.length} invoice(s)`);
+                    MessageToast.show(`Processing ${invoicePayload.length} invoice(s)`);
+                }
+            },
+
+            enableControls: function (clearSelection) {
+                if (clearSelection) {
+                    this.byId('table1').clearSelection();
+                }
+                this.byId('table1').setShowOverlay(false);
+                this.byId('processButton').setEnabled(true);
+            },
+
+            disableControls: function () {
+                this.byId('table1').setShowOverlay(true);
+                this.byId('processButton').setEnabled(false);
             }
         });
     });
