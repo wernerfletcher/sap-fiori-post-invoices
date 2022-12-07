@@ -9,6 +9,18 @@
     <m:Shell id="shell1">
         <m:App id="app1">
             <m:Page id="page1" title="Process Invoices">
+                <m:FlexBox id="uploaderFlexBox"
+                    class="sapUiSmallMarginTop"
+                    alignItems="Center"
+                    justifyContent="Center">
+                    <u:FileUploader
+                        id="fileUploader"
+                        placeholder="Select invoice data"
+                        tooltip="Select invoice data to import"
+                        change="handleUpload"
+                        fileType="json"/>
+                </m:FlexBox>
+
                 <m:Panel id="tablePanel">
                     <Table id="table1"
                         class="sapUiResponsiveMargin"
@@ -58,10 +70,10 @@
                         height="50px"
                         alignItems="Center"
                         justifyContent="Center">
-                        <m:Button id="button1"
+                        <m:Button id="processButton"
                             icon="sap-icon://accept"
                             text="Process Invoices"
-                            press=".onProcess"
+                            press=".processInvoices"
                             type="Emphasized"
                         />
                     </m:FlexBox>

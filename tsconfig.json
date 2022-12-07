@@ -6,6 +6,7 @@
     "allowJs": true,
     "types": [
       "@sapui5/ts-types"
-    ]
+    ],
+    "lib": [ "es2018", "DOM" ]
   }
 }
